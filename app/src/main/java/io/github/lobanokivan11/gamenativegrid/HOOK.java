@@ -3,7 +3,9 @@ package io.github.lobanokivan11.gamenativegrid;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.util.Log;
-
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.security.KeyStore;
 import java.util.Arrays;
@@ -36,6 +38,8 @@ public class HOOK implements IXposedHookLoadPackage {
 		}
 	    } catch (XposedHelpers.ClassNotFoundError e) {
 	        XposedBridge.log("BuildConfig class not found for " + lpparam.packageName);
+	    } catch (IOException e) {
+	        XposedBridge.log("Error on Reading Api Key! Please Check /sdcard/steamgriddb_key.txt file for mistakes" + e.getMessage());
 	    } catch (NoSuchFieldError e) {
 	        XposedBridge.log("Field not found in BuildConfig");
 	    }

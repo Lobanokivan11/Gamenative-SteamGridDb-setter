@@ -1,0 +1,7 @@
+<resources>
+	<string name="app_name">Gamenative STEAMGRIDDB setter</string>
+	<string name="xposed_description">Set STEAMGRIDDB api key for automatic game images support to gamenative</string>
+	<string-array name="scope">
+		<item>app.gamenative</item>
+	</string-array>
+</resources>

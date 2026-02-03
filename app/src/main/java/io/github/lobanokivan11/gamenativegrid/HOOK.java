@@ -25,19 +25,17 @@ public class HOOK implements IXposedHookLoadPackage {
 	    if (!lpparam.packageName.equals("app.gamenative")) return;
 	    try {
         	Class<?> buildConfigClass = XposedHelpers.findClass(
-         		lpparam.packageName + ".BuildConfig", 
-        	    lpparam.classLoader
+			lpparam.packageName + ".BuildConfig",
+			lpparam.classLoader
   	        );
-            BufferedReader br = new BufferedReader(new FileReader("/sdcard/steamgriddb_key.txt"));
-			String secretKey = br.readLine();
-			br.close();
-			if (secretKey != null && !secretKey.isEmpty()) {
-				XposedHelpers.setStaticObjectField(buildConfigClass, "STEAMGRIDDB_API_KEY", secretKey.trim());
-			}
+		BufferedReader br = new BufferedReader(new FileReader("/sdcard/steamgriddb_key.txt"));
+		String secretKey = br.readLine();
+		br.close();
+		if (secretKey != null && !secretKey.isEmpty()) {
+			XposedHelpers.setStaticObjectField(buildConfigClass, "STEAMGRIDDB_API_KEY", secretKey.trim());
+		}
 	    } catch (XposedHelpers.ClassNotFoundError e) {
 	        XposedBridge.log("BuildConfig class not found for " + lpparam.packageName);
-	    } catch (IOException e) {
-	        XposedBridge.log("Error on Reading Api Key! Please Check /sdcard/steamgriddb_key.txt file for mistakes" + e.getMessage());
 	    } catch (NoSuchFieldError e) {
 	        XposedBridge.log("Field not found in BuildConfig");
 	    }

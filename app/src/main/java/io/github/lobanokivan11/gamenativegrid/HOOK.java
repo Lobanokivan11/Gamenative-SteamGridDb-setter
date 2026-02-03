@@ -26,10 +26,22 @@ public class HOOK implements IXposedHookLoadPackage {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 	    if (!lpparam.packageName.equals("app.gamenative")) return;
 	    try {
-        	Class<?> buildConfigClass = XposedHelpers.findClass(
-			lpparam.packageName + ".BuildConfig",
-			lpparam.classLoader
-  	        );
+		String[] possiblePaths = {
+ 			lpparam.packageName + ".BuildConfig",
+			"io.github.lobanokivan11.gamenativegrid.BuildConfig",
+			"app.gamenative.BuildConfig"
+		};
+		Class<?> buildConfigClass = null;
+		for (String path : possiblePaths) {
+			try {
+				buildConfigClass = XposedHelpers.findClass(path, lpparam.classLoader);
+				break;
+			} catch (XposedHelpers.ClassNotFoundError ignored) {}
+		}
+		if (buildConfigClass == null) {
+			XposedBridge.log("BuildConfig not found in any known path");
+			return;
+		}
 		BufferedReader br = new BufferedReader(new FileReader("/sdcard/steamgriddb_key.txt"));
 		String secretKey = br.readLine();
 		br.close();

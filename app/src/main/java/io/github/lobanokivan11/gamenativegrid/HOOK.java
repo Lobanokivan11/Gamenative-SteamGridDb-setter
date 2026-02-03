@@ -26,34 +26,34 @@ public class HOOK implements IXposedHookLoadPackage {
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) throws Throwable {
 	    if (!lpparam.packageName.equals("app.gamenative")) return;
 	    try {
-		String[] possiblePaths = {
- 			lpparam.packageName + ".BuildConfig",
-			"io.github.lobanokivan11.gamenativegrid.BuildConfig",
-			"app.gamenative.BuildConfig"
-		};
-		Class<?> buildConfigClass = null;
-		for (String path : possiblePaths) {
-			try {
-				buildConfigClass = XposedHelpers.findClass(path, lpparam.classLoader);
-				break;
-			} catch (XposedHelpers.ClassNotFoundError ignored) {}
+		XposedHelpers.findAndHookMethod("android.app.Application", lpparam.classLoader, "onCreate", new XC_MethodHook() {
+		@Override
+		protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+			ClassLoader cl = ((android.app.Application) param.thisObject).getClassLoader();
+			Class<?> buildConfigClass = XposedHelpers.findClass("app.gamenative.BuildConfig", cl);
+			for (String path : possiblePaths) {
+				try {
+					buildConfigClass = XposedHelpers.findClass(path, lpparam.classLoader);
+					break;
+				} catch (XposedHelpers.ClassNotFoundError ignored) {}
+			}
+			if (buildConfigClass == null) {
+				XposedBridge.log("BuildConfig not found in any known path");
+				return;
+			}
+			BufferedReader br = new BufferedReader(new FileReader("/sdcard/steamgriddb_key.txt"));
+			String secretKey = br.readLine();
+			br.close();
+			if (secretKey != null && !secretKey.isEmpty()) {
+				XposedHelpers.setStaticObjectField(buildConfigClass, "STEAMGRIDDB_API_KEY", secretKey.trim());
+			}
+		    } catch (XposedHelpers.ClassNotFoundError e) {
+		        XposedBridge.log("BuildConfig class not found for " + lpparam.packageName);
+		    } catch (IOException e) {
+		        XposedBridge.log("Error on Reading Api Key! Please Check /sdcard/steamgriddb_key.txt file for mistakes" + e.getMessage());
+		    } catch (NoSuchFieldError e) {
+		        XposedBridge.log("Field not found in BuildConfig");
+		    }
 		}
-		if (buildConfigClass == null) {
-			XposedBridge.log("BuildConfig not found in any known path");
-			return;
-		}
-		BufferedReader br = new BufferedReader(new FileReader("/sdcard/steamgriddb_key.txt"));
-		String secretKey = br.readLine();
-		br.close();
-		if (secretKey != null && !secretKey.isEmpty()) {
-			XposedHelpers.setStaticObjectField(buildConfigClass, "STEAMGRIDDB_API_KEY", secretKey.trim());
-		}
-	    } catch (XposedHelpers.ClassNotFoundError e) {
-	        XposedBridge.log("BuildConfig class not found for " + lpparam.packageName);
-	    } catch (IOException e) {
-	        XposedBridge.log("Error on Reading Api Key! Please Check /sdcard/steamgriddb_key.txt file for mistakes" + e.getMessage());
-	    } catch (NoSuchFieldError e) {
-	        XposedBridge.log("Field not found in BuildConfig");
-	    }
 	}
 }

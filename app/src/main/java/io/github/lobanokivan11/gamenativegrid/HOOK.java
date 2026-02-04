@@ -36,7 +36,6 @@ public class HOOK implements IXposedHookLoadPackage {
         if (cachedKey != null) return cachedKey;
 
         try {
-            // Пытаемся найти файл в разных местах для LSPosed и LSPatch
             File keyFile = new File(Environment.getExternalStorageDirectory(), "steamgriddb_key.txt");
             
             if (keyFile.exists()) {
